@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Distance Calculator</title>
+		<script src="https://cdn.tailwindcss.com"></script>
+	</head>
+	<body
+		class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen py-8 px-4"
+	>
+		<div class="max-w-2xl mx-auto">
+			<!-- Header -->
+			<div class="text-center mb-8">
+				<h1 class="text-4xl font-bold text-gray-800 mb-2">
+					Distance Calculator
+				</h1>
+				<p class="text-gray-600">
+					Calculate driving distance between two postcodes
+				</p>
+			</div>
+
+			<!-- Form Card -->
+			<div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+				<form
+					id="distanceForm"
+					class="space-y-4"
+				>
+					<div>
+						<label
+							for="postcode1"
+							class="block text-sm font-medium text-gray-700 mb-2"
+						>
+							From Postcode
+						</label>
+						<input
+							type="text"
+							id="postcode1"
+							placeholder="e.g., SW1A 1AA"
+							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+							required
+						/>
+					</div>
+
+					<div>
+						<label
+							for="postcode2"
+							class="block text-sm font-medium text-gray-700 mb-2"
+						>
+							To Postcode
+						</label>
+						<input
+							type="text"
+							id="postcode2"
+							placeholder="e.g., EC1A 1BB"
+							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+							required
+						/>
+					</div>
+
+					<!-- Via Points Section -->
+					<div>
+						<div class="flex items-center justify-between mb-2">
+							<label class="block text-sm font-medium text-gray-700">
+								Via Points (Optional)
+							</label>
+							<button
+								type="button"
+								id="addViaBtn"
+								class="text-sm text-blue-600 hover:text-blue-700 font-medium"
+							>
+								+ Add Via Point
+							</button>
+						</div>
+						<div
+							id="viasContainer"
+							class="space-y-2"
+						></div>
+					</div>
+
+					<button
+						type="submit"
+						id="calculateBtn"
+						class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition duration-200 shadow-md hover:shadow-lg"
+					>
+						Calculate Distance
+					</button>
+				</form>
+			</div>
+
+			<!-- Loading Spinner -->
+			<div
+				id="loading"
+				class="hidden text-center py-8"
+			>
+				<div
+					class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"
+				></div>
+				<p class="text-gray-600 mt-4">Calculating route...</p>
+			</div>
+
+			<!-- Error Message -->
+			<div
+				id="error"
+				class="hidden bg-red-50 border-l-4 border-red-500 p-4 rounded-lg mb-6"
+			>
+				<div class="flex">
+					<div class="flex-shrink-0">
+						<svg
+							class="h-5 w-5 text-red-400"
+							viewBox="0 0 20 20"
+							fill="currentColor"
+						>
+							<path
+								fill-rule="evenodd"
+								d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+								clip-rule="evenodd"
+							/>
+						</svg>
+					</div>
+					<div class="ml-3">
+						<p
+							class="text-sm text-red-700"
+							id="errorMessage"
+						></p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Results Card -->
+			<div
+				id="results"
+				class="hidden bg-white rounded-lg shadow-lg p-6"
+			>
+				<h2 class="text-2xl font-bold text-gray-800 mb-4">Route Details</h2>
+
+				<!-- Summary Grid -->
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+					<!-- Trip Distance -->
+					<div class="bg-blue-50 rounded-lg p-4">
+						<div class="text-sm text-gray-600 mb-1">Trip Distance</div>
+						<div
+							class="text-2xl font-bold text-blue-600"
+							id="tripDistance"
+						></div>
+						<div
+							class="text-sm text-gray-500 mt-1"
+							id="tripDuration"
+						></div>
+					</div>
+
+					<!-- Return Distance -->
+					<div class="bg-green-50 rounded-lg p-4">
+						<div class="text-sm text-gray-600 mb-1">Return Distance</div>
+						<div
+							class="text-2xl font-bold text-green-600"
+							id="deadDistance"
+						></div>
+						<div
+							class="text-sm text-gray-500 mt-1"
+							id="deadDuration"
+						></div>
+					</div>
+				</div>
+
+				<!-- Total Summary -->
+				<div
+					class="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-4 mb-6"
+				>
+					<div class="text-sm text-gray-600 mb-2">Total Journey</div>
+					<div class="flex justify-between items-center">
+						<div>
+							<div
+								class="text-xl font-bold text-indigo-700"
+								id="totalDistance"
+							></div>
+							<div
+								class="text-sm text-gray-600 mt-1"
+								id="totalDuration"
+							></div>
+						</div>
+						<div class="text-4xl">🚗</div>
+					</div>
+				</div>
+
+				<!-- Steps -->
+				<div
+					id="stepsContainer"
+					class="hidden"
+				>
+					<h3 class="text-lg font-semibold text-gray-800 mb-3">
+						Route Instructions
+					</h3>
+					<div
+						id="stepsList"
+						class="space-y-2 max-h-96 overflow-y-auto"
+					></div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			const form = document.getElementById('distanceForm');
+			const loading = document.getElementById('loading');
+			const error = document.getElementById('error');
+			const results = document.getElementById('results');
+			const calculateBtn = document.getElementById('calculateBtn');
+			const addViaBtn = document.getElementById('addViaBtn');
+			const viasContainer = document.getElementById('viasContainer');
+
+			let viaCount = 0;
+
+			// Add via point
+			addViaBtn.addEventListener('click', () => {
+				viaCount++;
+				const viaDiv = document.createElement('div');
+				viaDiv.className = 'flex gap-2';
+				viaDiv.id = `via-${viaCount}`;
+
+				viaDiv.innerHTML = `
+                <input 
+                    type="text" 
+                    class="via-input flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                    placeholder="e.g., BA9 8AA"
+                >
+                <button 
+                    type="button" 
+                    onclick="removeVia(${viaCount})"
+                    class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition"
+                >
+                    Remove
+                </button>
+            `;
+
+				viasContainer.appendChild(viaDiv);
+			});
+
+			// Remove via point
+			window.removeVia = function (id) {
+				const viaDiv = document.getElementById(`via-${id}`);
+				if (viaDiv) {
+					viaDiv.remove();
+				}
+			};
+
+			form.addEventListener('submit', async (e) => {
+				e.preventDefault();
+
+				const from = document.getElementById('postcode1').value.trim();
+				const to = document.getElementById('postcode2').value.trim();
+
+				// Get all via points
+				const viaInputs = document.querySelectorAll('.via-input');
+				const vias = Array.from(viaInputs)
+					.map((input) => input.value.trim())
+					.filter((value) => value !== '');
+
+				// Hide previous results and errors
+				error.classList.add('hidden');
+				results.classList.add('hidden');
+				loading.classList.remove('hidden');
+				calculateBtn.disabled = true;
+				calculateBtn.textContent = 'Calculating...';
+
+				try {
+					// Build request body
+					const requestBody = {
+						from: from,
+						to: to,
+					};
+
+					// Only add vias if there are any
+					if (vias.length > 0) {
+						requestBody.vias = vias;
+					}
+
+					// Call your API with postcodes directly
+					const response = await fetch('http://localhost:3000/api/distance', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify(requestBody),
+					});
+
+					if (!response.ok) {
+						const errorData = await response.json();
+						throw new Error(errorData.error || 'Failed to calculate distance');
+					}
+
+					const data = await response.json();
+					displayResults(data);
+				} catch (err) {
+					showError(err.message);
+				} finally {
+					loading.classList.add('hidden');
+					calculateBtn.disabled = false;
+					calculateBtn.textContent = 'Calculate Distance';
+				}
+			});
+
+			function displayResults(data) {
+				// Display trip details
+				document.getElementById('tripDistance').textContent =
+					`${data.distance_trip_miles} miles`;
+				document.getElementById('tripDuration').textContent =
+					data.duration_trip_text;
+
+				// Display return details
+				document.getElementById('deadDistance').textContent =
+					`${data.distance_dead_miles} miles`;
+				document.getElementById('deadDuration').textContent =
+					data.duration_dead_text;
+
+				// Display total
+				document.getElementById('totalDistance').textContent =
+					data.distance_total_text;
+				document.getElementById('totalDuration').textContent =
+					data.duration_text;
+
+				// Display steps if available
+				if (data.steps && data.steps.length > 0) {
+					const stepsContainer = document.getElementById('stepsContainer');
+					const stepsList = document.getElementById('stepsList');
+					stepsList.innerHTML = '';
+
+					data.steps.forEach((step, index) => {
+						const stepDiv = document.createElement('div');
+						stepDiv.className =
+							'flex items-start space-x-3 p-3 bg-gray-50 rounded-lg';
+
+						const distanceKm = (step.distance / 1000).toFixed(1);
+						const durationMin = Math.round(step.duration / 60);
+
+						stepDiv.innerHTML = `
+                        <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+                            ${index + 1}
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-gray-800">${step.instruction}</p>
+                            <p class="text-sm text-gray-500 mt-1">${distanceKm} km • ${durationMin} min</p>
+                        </div>
+                    `;
+						stepsList.appendChild(stepDiv);
+					});
+
+					stepsContainer.classList.remove('hidden');
+				}
+
+				results.classList.remove('hidden');
+			}
+
+			function showError(message) {
+				document.getElementById('errorMessage').textContent = message;
+				error.classList.remove('hidden');
+			}
+		</script>
+	</body>
+</html>
