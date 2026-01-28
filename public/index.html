@@ -278,13 +278,16 @@
 					}
 
 					// Call your API with postcodes directly
-					const response = await fetch('http://localhost:3000/api/distance', {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
+					const response = await fetch(
+						'https://post-service-bd2d.onrender.com/',
+						{
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json',
+							},
+							body: JSON.stringify(requestBody),
 						},
-						body: JSON.stringify(requestBody),
-					});
+					);
 
 					if (!response.ok) {
 						const errorData = await response.json();
